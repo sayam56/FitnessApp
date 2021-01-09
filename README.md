@@ -27,3 +27,5 @@ samples, guidance on mobile development, and a full API reference.
 
 
  **Note:** Check out the UI Tutorial [here](https://morioh.com/p/c7c270166274).
+ 
+ **Note:** Check out the Firebase Tutorial [here](https://blog.codemagic.io/firebase-authentication-google-sign-in-using-flutter/?fbclid=IwAR1rKmawO8UKvMDAGZm2sbtp0ZWWyLzxNyBYiBszrziXEv9ZR7F_RCNwlM4).
