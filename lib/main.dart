@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:daily_steps/daily_steps_page.dart';
+import 'package:daily_steps/stepcount_functionality/daily_steps_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

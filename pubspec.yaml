@@ -32,6 +32,11 @@ dependencies:
   jiffy: ^3.0.1
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
+  font_awesome_flutter: ^8.4.0
+  decimal: ^0.3.3
+  percent_indicator: ^1.0.14
+  flutter_launcher_icons: ^0.7.0
+  flutter_svg: ^0.18.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -41,6 +46,10 @@ dev_dependencies:
   hive_generator: ^0.7.0+2
   build_runner: ^1.10.0
 
+flutter_icons:
+  android: "launcher_icon" 
+  ios: true
+  image_path: "assets/icon/step.PNG"
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -53,9 +62,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/burn.svg
+    - assets/images/distance.svg
+    - assets/images/running.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
