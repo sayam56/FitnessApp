@@ -1,3 +1,4 @@
+import 'package:daily_steps/pagese/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Daily Steps',
-      home: DailyStepsPage(),
+      home: LoginPage(),
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
         textTheme: GoogleFonts.darkerGrotesqueTextTheme(
