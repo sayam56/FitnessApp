@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "931377139776-87jornpf6puuclcf5lef7b8lidqvua2i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daily_steps",
+            "certificate_hash": "5b19f5f03658ce60b80de22b5af3e55c25339399"
+          }
+        },
+        {
           "client_id": "931377139776-k3s3dse3e06olemm2knfv76g6bbhf2l0.apps.googleusercontent.com",
           "client_type": 3
         }

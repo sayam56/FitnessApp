@@ -1,4 +1,5 @@
 import 'package:daily_steps/Authentication/auth.dart';
+import 'package:daily_steps/Authentication/phone_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../daily_steps_page.dart';
@@ -22,6 +23,18 @@ class _LoginPageState extends State<LoginPage> {
               FlutterLogo(size: 150),
               SizedBox(height: 50),
               _signInButton(),
+              RaisedButton(
+                child: Icon(Icons.phone_android),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Phone();
+                      },
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
