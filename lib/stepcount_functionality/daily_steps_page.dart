@@ -41,20 +41,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     super.dispose();
   }
 
-  Widget gradientShaderMask({@required Widget child}) {
-    return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
-        colors: [
-          Colors.orange,
-          Colors.deepOrange.shade900,
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-      child: child,
-    );
-  }
-
   void startListening() {
     _pedometer = Pedometer();
     _subscription = _pedometer.pedometerStream.listen(
