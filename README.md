@@ -26,4 +26,4 @@ samples, guidance on mobile development, and a full API reference.
  **Note:** To get this working on iOS, please do not forget to carry out the steps mentioned [here](https://github.com/cph-cachet/flutter-plugins/tree/master/packages/pedometer).
 
 
- **Note:** Check out the UI Tutorial [here](https://morioh.com/p/c7c270166274).
+ **Note:** Check out the UI Tutorial [here](https://morioh.com/p/c7c270166274).# daily_step_tracker
