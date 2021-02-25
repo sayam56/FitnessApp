@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "366108399784",
+    "project_id": "bracufitnessapp-7cc5b",
+    "storage_bucket": "bracufitnessapp-7cc5b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366108399784:android:e4181088bcd87eba65ca9d",
+        "android_client_info": {
+          "package_name": "com.example.daily_steps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366108399784-6adr40liedvj5vj98uvehfu0kmhhl2es.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daily_steps",
+            "certificate_hash": "d5d1571c0d09657ae374fc702d6ba5798a71f3d4"
+          }
+        },
+        {
+          "client_id": "366108399784-apv4720qdnb9c084jujf2s10ibr0m082.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.daily_steps",
+            "certificate_hash": "5b19f5f03658ce60b80de22b5af3e55c25339399"
+          }
+        },
+        {
+          "client_id": "366108399784-lnm17vhk8rc1gh227hgu59b708e035pb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhTMc8sBTlxHMVW-m0IpXF61sRL7-Tj-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366108399784-lnm17vhk8rc1gh227hgu59b708e035pb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

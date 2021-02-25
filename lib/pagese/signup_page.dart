@@ -3,6 +3,7 @@ import 'package:daily_steps/Authentication/phone_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../daily_steps_page.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -43,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _signInButton() {
+    //SignInToApp signtoApp = Get.put(SignInToApp());
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () {
