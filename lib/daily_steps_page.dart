@@ -1,5 +1,9 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:daily_steps/main.dart';
+import 'package:daily_steps/Pages/history.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -9,12 +13,14 @@ import 'package:pedometer/pedometer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+
 class DailyStepsPage extends StatefulWidget {
   @override
   _DailyStepsPageState createState() => _DailyStepsPageState();
 }
 
 class _DailyStepsPageState extends State<DailyStepsPage> {
+  String userId = FirebaseAuth.instance.currentUser.uid;
   Pedometer _pedometer; //init pedometer
   StreamSubscription<int> _subscription; //we need sub to get the stream value
   Box<int> stepsBox =
@@ -26,12 +32,14 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   double burnedx;
   double _numerox; //stepcount
   double _convert;
+  String sleepTime = '$globalRawTime';
 
   final Color carbonBlack = Color(0xff1a1a1a);
 
   @override
   void initState() {
     super.initState();
+    setState(() {});
     startListening();
   }
 
@@ -40,20 +48,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     stopListening();
     super.dispose();
   }
-
-  /* Widget gradientShaderMask({@required Widget child}) {
-    return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
-        colors: [
-          Colors.orange,
-          Colors.deepOrange.shade900,
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-      child: child,
-    );
-  } */
 
   void startListening() {
     _pedometer = Pedometer();
@@ -128,7 +122,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
       _convert = d;
       // print(_convert);
     });
-
     return todaySteps; // this is your daily steps value.
   }
 
@@ -163,6 +156,37 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
 
   @override
   Widget build(BuildContext context) {
+    TimeOfDay yourTime = TimeOfDay(hour: 2, minute: 43);
+    TimeOfDay nowTime = TimeOfDay.now();
+    DateTime date = DateTime.now();
+
+    double _doubleYourTime =
+        yourTime.hour.toDouble() + (yourTime.minute.toDouble() / 60);
+    double _doubleNowTime =
+        nowTime.hour.toDouble() + (nowTime.minute.toDouble() / 60);
+    final endTime = DateTime(
+        DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
+    if (date.compareTo(endTime) > 0) {
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection('bracuFitnessData')
+          .doc(userId)
+          .collection(userId)
+          .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'));
+      documentReference.set({
+        'Steps': '$todaySteps',
+        'calories': '$_calories',
+        'date': Jiffy(DateTime.now()).format('do MMMM yyyy'),
+        'distance': '$_km',
+        'sleepTime': '$globalRawTime'
+      });
+      // Firestore.instance.collection('path').document("documentPath").collection('subCollectionPath').setData({});
+      //documentReference.collection('date').
+    }
+    double _timeDiff = _doubleYourTime - _doubleNowTime;
+
+    print('Here your Happy $_timeDiff now Time $nowTime');
+
+    var time = Jiffy(date).Hms.split(":").first;
     getBurnedRun();
     return Scaffold(
       backgroundColor: carbonBlack,
@@ -339,6 +363,58 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
                   ),
                 ],
               ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 25),
+              child: Row(
+                children: <Widget>[
+                  Spacer(),
+                  FlatButton(
+                    onPressed: () {
+                      print(globalRawTime);
+                      setState(() {
+                        sleepTime = globalRawTime;
+                      });
+                    },
+                    child: Text('Get Sleep Time'),
+                  ),
+                  Spacer(),
+                  InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => History(
+                                    userId: userId,
+                                  )),
+                        );
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 30,
+                        color: Colors.blue,
+                        child: Text('History'),
+                      ))
+                ],
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 25),
+              child: Row(
+                children: <Widget>[
+                  Spacer(),
+                  Text(
+                    '$sleepTime',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 20,
             ),
           ],
         ),
