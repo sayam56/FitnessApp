@@ -13,7 +13,6 @@ import 'package:pedometer/pedometer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
-
 class DailyStepsPage extends StatefulWidget {
   @override
   _DailyStepsPageState createState() => _DailyStepsPageState();
@@ -32,7 +31,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   double burnedx;
   double _numerox; //stepcount
   double _convert;
-  String sleepTime = '$globalRawTime';
+  String sleepTime = globalRawTime;
 
   final Color carbonBlack = Color(0xff1a1a1a);
 

@@ -8,9 +8,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:daily_steps/daily_steps_page.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
-String globalRawTime = 'Not Sleepy Yet';
+String globalRawTime = '00:00:00:00';
+/* Future<String> savedSleep;
+String todaySleepTime;
+Box<String> sleepBox; */
 
 final StopWatchTimer _stopWatchTimer = StopWatchTimer(
   isLapHours: true,
@@ -66,6 +70,7 @@ void main() async {
   await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox<int>('steps');
+/*   await Hive.openBox<String>('sleep'); */
   runApp(MyApp());
 
   // Register to receive BackgroundFetch events after app is terminated.
@@ -82,7 +87,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   User firebaseUser = FirebaseAuth.instance.currentUser;
   Widget firstWidget;
-  bool _enabled = true;
   int _status = 0;
   List<DateTime> _events = [];
 
@@ -96,6 +100,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
 
     _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
+
+/*     sleepBox = Hive.box('sleep'); */
+
+/*     //save sleep here
+    savedSleep=getSavedSleepData(globalRawTime); */
 
     /// Can be set preset time. This case is "00:01.23".
     // _stopWatchTimer.setPresetTime(mSec: 1234);
@@ -135,6 +144,55 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('app paused, is lock screen: ${await isLockScreen()}');
     }
   }
+
+/*   Future<String> getSavedSleepData(String globalRawStopwatchData) async {
+    String sleepKey = '99999999';
+    String savedSleepCount =
+        sleepBox.get(sleepKey, defaultValue: '00:00:00:00');
+
+    int todayDayNo = Jiffy(DateTime.now()).dayOfYear;
+
+    if (globalRawStopwatchData.compareTo(savedSleepCount) <= 0) {
+      //if the current sleeptime is less than the saved sleep this means no sleeptime has been recorded yet
+      savedSleepCount = '00:00:00:00';
+
+      // persisting this
+      sleepBox.put(sleepKey, savedSleepCount);
+    }
+
+    //this should be the resetting block :3 ---------------------------------------------------------------------------------------
+
+    /* // load the last day saved using a package of your choice here
+    int lastDaySavedKey = 888888;
+    int lastDaySaved = stepsBox.get(lastDaySavedKey, defaultValue: 0);
+
+    // When the day changes, reset the daily steps count
+    // and Update the last day saved as the day changes.
+    if (lastDaySaved < todayDayNo) {
+      lastDaySaved = todayDayNo;
+      savedStepsCount = value;
+
+      stepsBox
+        ..put(lastDaySavedKey, lastDaySaved)
+        ..put(savedStepsCountKey, savedStepsCount);
+    } */
+
+    setState(() {
+      String globalRawTimeWithoutExtra =
+          globalRawStopwatchData.replaceAll(':', '');
+      String savedSleepTimeWithoutExtra = savedSleepCount.replaceAll(':', '');
+      int tempSleepTime = int.parse(globalRawTimeWithoutExtra) -
+          int.parse(savedSleepTimeWithoutExtra);
+      todaySleepTime = tempSleepTime.toString();
+    });
+
+    print('----------------------------------------------------------------');
+    print(todaySleepTime);
+
+    sleepBox.put(todayDayNo, todaySleepTime);
+
+    return todaySleepTime;
+  } */
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
@@ -186,7 +244,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (!mounted) return;
   }
 
-  void _onClickEnable(enabled) {
+/*  void _onClickEnable(enabled) {
     setState(() {
       _enabled = enabled;
     });
@@ -209,7 +267,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     setState(() {
       _status = status;
     });
-  }
+  } */
 
   @override
   Widget build(BuildContext context) {
