@@ -158,7 +158,7 @@ class _HistoryState extends State<History> {
                           SizedBox(
                             height: 10,
                           ),
-                          Text(document['sleepTime'],
+                          Text(document['sleepTime'].toString(),
                               style:
                                   TextStyle(color: Colors.white, fontSize: 20)),
                         ],

@@ -170,6 +170,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         dbSleepTime = value.data()['sleepTime'];
         return dbSleepTime;
       });
+      return dbSleepTime;
     }
 
     print('dbSleepTime variable er data : ' + '$dbSleepTime');
