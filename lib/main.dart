@@ -12,6 +12,7 @@ import 'package:jiffy/jiffy.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 String globalRawTime = '00:00:00:00';
+int globalSecondTime = 0;
 /* Future<String> savedSleep;
 String todaySleepTime;
 Box<String> sleepBox; */
@@ -24,7 +25,7 @@ final StopWatchTimer _stopWatchTimer = StopWatchTimer(
 
 // [Android-only] This "Headless Task" is run when the Android app
 // is terminated with enableHeadless: true
-void backgroundFetchHeadlessTask(HeadlessTask task) async {
+/* void backgroundFetchHeadlessTask(HeadlessTask task) async {
   String taskId = task.taskId;
   bool isTimeout = task.timeout;
 
@@ -63,7 +64,7 @@ void backgroundFetchHeadlessTask(HeadlessTask task) async {
   }
 
   BackgroundFetch.finish(taskId);
-}
+} */
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +76,7 @@ void main() async {
 
   // Register to receive BackgroundFetch events after app is terminated.
   // Requires {stopOnTerminate: false, enableHeadless: true}
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+  //BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
 //firebase auth
 
@@ -99,7 +100,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       globalRawTime = StopWatchTimer.getDisplayTime(value);
     });
 
-    _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
+    _stopWatchTimer.secondTime.listen((value) {
+      globalSecondTime = value;
+      print('second Time : ' + '$value');
+    });
 
 /*     sleepBox = Hive.box('sleep'); */
 

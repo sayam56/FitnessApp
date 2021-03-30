@@ -32,12 +32,14 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   double _numerox; //stepcount
   double _convert;
   String sleepTime = globalRawTime;
+  int dbSleepTime = 0;
 
   final Color carbonBlack = Color(0xff1a1a1a);
 
   @override
   void initState() {
     super.initState();
+    getDBSleep();
     setState(() {});
     startListening();
   }
@@ -153,6 +155,50 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     _subscription.cancel();
   }
 
+  getDBSleep() async {
+    print('fetching sleeptime from db');
+    await FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
+        .get()
+        .then((value) {
+      print('this is a callback from initstate');
+      dbSleepTime = value.data()['sleepTime'];
+      /*  setState(() {
+        dbSleepTime = value.data()['sleepTime'];
+      }); */
+    });
+
+    print('dbSleepTime variable er data : ' + '$dbSleepTime');
+  }
+  //testing code block
+
+/*   getDBSleep() {
+    String fetchedDBSleep;
+    FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
+        .get()
+        .then((value) {
+      print(value.data()['sleepTime']);
+      fetchedDBSleep = value.data()['sleepTime'];
+      return fetchedDBSleep;
+    });
+    return fetchedDBSleep;
+  } */
+
+  int getAddedSleep(int globalSecondTime, int dbSleepTime) {
+    /* int dbSleepTimeInt = int.parse(dbSleepTime); */
+    int sum = dbSleepTime + globalSecondTime;
+    //add function here
+    print('from the added sleep function: ' + '$globalSecondTime');
+    return sum;
+  }
+
   @override
   Widget build(BuildContext context) {
     TimeOfDay yourTime = TimeOfDay(hour: 2, minute: 43);
@@ -165,6 +211,19 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         nowTime.hour.toDouble() + (nowTime.minute.toDouble() / 60);
     final endTime = DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
+
+    /* FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
+        .get()
+        .then((value) {
+      setState(() {
+        dbSleepTime = value.data()['sleepTime'];
+      });
+    }); */
+
     if (date.compareTo(endTime) > 0) {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection('bracuFitnessData')
@@ -176,7 +235,9 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         'calories': '$_calories',
         'date': Jiffy(DateTime.now()).format('do MMMM yyyy'),
         'distance': '$_km',
-        'sleepTime': '$globalRawTime'
+        'sleepTime': globalSecondTime > 0
+            ? getAddedSleep(globalSecondTime, dbSleepTime)
+            : getDBSleep()
       });
       // Firestore.instance.collection('path').document("documentPath").collection('subCollectionPath').setData({});
       //documentReference.collection('date').
