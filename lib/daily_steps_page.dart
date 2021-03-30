@@ -39,7 +39,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   @override
   void initState() {
     super.initState();
-    getDBSleep();
+    //getDBSleep();
     setState(() {});
     startListening();
   }
@@ -157,39 +157,25 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
 
   getDBSleep() async {
     print('fetching sleeptime from db');
-    await FirebaseFirestore.instance
-        .collection('bracuFitnessData')
-        .doc(userId)
-        .collection(userId)
-        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
-        .get()
-        .then((value) {
-      print('this is a callback from initstate');
-      dbSleepTime = value.data()['sleepTime'];
-      /*  setState(() {
+
+    if (dbSleepTime == 0) {
+      await FirebaseFirestore.instance
+          .collection('bracuFitnessData')
+          .doc(userId)
+          .collection(userId)
+          .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
+          .get()
+          .then((value) {
+        print('this is a callback from initstate');
         dbSleepTime = value.data()['sleepTime'];
-      }); */
-    });
+        return dbSleepTime;
+      });
+    }
 
     print('dbSleepTime variable er data : ' + '$dbSleepTime');
-  }
-  //testing code block
 
-/*   getDBSleep() {
-    String fetchedDBSleep;
-    FirebaseFirestore.instance
-        .collection('bracuFitnessData')
-        .doc(userId)
-        .collection(userId)
-        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
-        .get()
-        .then((value) {
-      print(value.data()['sleepTime']);
-      fetchedDBSleep = value.data()['sleepTime'];
-      return fetchedDBSleep;
-    });
-    return fetchedDBSleep;
-  } */
+    return dbSleepTime;
+  }
 
   int getAddedSleep(int globalSecondTime, int dbSleepTime) {
     /* int dbSleepTimeInt = int.parse(dbSleepTime); */
