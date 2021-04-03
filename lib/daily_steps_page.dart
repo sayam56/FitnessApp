@@ -155,8 +155,8 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     _subscription.cancel();
   }
 
-  getDBSleep() async {
-    print('fetching sleeptime from db');
+  Future<int> getDBSleep() async {
+   // print('fetching sleeptime from db');
 
     if (dbSleepTime == 0) {
       await FirebaseFirestore.instance
@@ -166,14 +166,14 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
           .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
           .get()
           .then((value) {
-        print('this is a callback from initstate');
+       // print('this is from getDBsleep');
         dbSleepTime = value.data()['sleepTime'];
         return dbSleepTime;
       });
       return dbSleepTime;
     }
 
-    print('dbSleepTime variable er data : ' + '$dbSleepTime');
+    //print('dbSleepTime variable er data : ' + '$dbSleepTime');
 
     return dbSleepTime;
   }
@@ -182,34 +182,16 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     /* int dbSleepTimeInt = int.parse(dbSleepTime); */
     int sum = dbSleepTime + globalSecondTime;
     //add function here
-    print('from the added sleep function: ' + '$globalSecondTime');
+    //print('from the added sleep function: ' + '$globalSecondTime');
     return sum;
   }
 
   @override
   Widget build(BuildContext context) {
-    TimeOfDay yourTime = TimeOfDay(hour: 2, minute: 43);
-    TimeOfDay nowTime = TimeOfDay.now();
     DateTime date = DateTime.now();
 
-    double _doubleYourTime =
-        yourTime.hour.toDouble() + (yourTime.minute.toDouble() / 60);
-    double _doubleNowTime =
-        nowTime.hour.toDouble() + (nowTime.minute.toDouble() / 60);
     final endTime = DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
-
-    /* FirebaseFirestore.instance
-        .collection('bracuFitnessData')
-        .doc(userId)
-        .collection(userId)
-        .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
-        .get()
-        .then((value) {
-      setState(() {
-        dbSleepTime = value.data()['sleepTime'];
-      });
-    }); */
 
     if (date.compareTo(endTime) > 0) {
       DocumentReference documentReference = FirebaseFirestore.instance
@@ -229,11 +211,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
       // Firestore.instance.collection('path').document("documentPath").collection('subCollectionPath').setData({});
       //documentReference.collection('date').
     }
-    double _timeDiff = _doubleYourTime - _doubleNowTime;
 
-    print('Here your Happy $_timeDiff now Time $nowTime');
-
-    var time = Jiffy(date).Hms.split(":").first;
     getBurnedRun();
     return Scaffold(
       backgroundColor: carbonBlack,
