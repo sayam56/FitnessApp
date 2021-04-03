@@ -28,14 +28,8 @@ void main() async {
   await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox<int>('steps');
-/*   await Hive.openBox<String>('sleep'); */
   runApp(MyApp());
-
-  // Register to receive BackgroundFetch events after app is terminated.
-  // Requires {stopOnTerminate: false, enableHeadless: true}
-  //BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
-//firebase auth
 
 class MyApp extends StatefulWidget {
   @override
@@ -62,8 +56,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('second Time : ' + '$value');
     });
 
-    /// Can be set preset time. This case is "00:01.23".
-    // _stopWatchTimer.setPresetTime(mSec: 1234);
     initPlatformState();
   }
 
@@ -131,7 +123,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // This is the fetch-event callback.
       //print("[BackgroundFetch] Event received $taskId");
 
-      //print("This is from the future InitPlatform shyt");
+      //print("This is from the future InitPlatform");
 
       //this is from the background. should be all good
       if ("${await isLockScreen()}" == 'true') {

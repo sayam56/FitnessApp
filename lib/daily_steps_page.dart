@@ -116,13 +116,11 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     int fac = pow(10, decimals);
     double d = long4;
     d = (d * fac).round() / fac;
-    //print("d: $d");
 
     getDistanceRun(_numerox);
 
     setState(() {
       _convert = d;
-      // print(_convert);
     });
     return todaySteps; // this is your daily steps value.
   }
@@ -133,7 +131,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     distance = num.parse(distance.toStringAsFixed(2)); //two decimal places
     var distancekmx = distance * 34;
     distancekmx = num.parse(distancekmx.toStringAsFixed(2));
-    //print(distance.runtimeType);
     setState(() {
       _km = "$distance";
       print('dist: ' + _km);
@@ -208,8 +205,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
             ? getAddedSleep(globalSecondTime, dbSleepTime)
             : getDBSleep()
       });
-      // Firestore.instance.collection('path').document("documentPath").collection('subCollectionPath').setData({});
-      //documentReference.collection('date').
     }
 
     getBurnedRun();
