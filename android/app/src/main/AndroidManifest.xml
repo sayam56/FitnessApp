@@ -9,7 +9,7 @@
     <application
         tools:replace="android:label"
         android:name="io.flutter.app.FlutterApplication"
-        android:label="Step Tracker"
+        android:label="Mental Health Support"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"

@@ -35,6 +35,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   int dbSleepTime = 0;
 
   final Color carbonBlack = Color(0xff1a1a1a);
+  final Color bgColor = Color(0xFF161616);
 
   @override
   void initState() {
@@ -156,32 +157,31 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   }
 
   Future<int> getDBSleep() async {
-   // print('fetching sleeptime from db');
+    // print('fetching sleeptime from db');
 
     if (dbSleepTime == 0) {
       await FirebaseFirestore.instance
           .collection('bracuFitnessData')
           .doc(userId)
           .collection(userId)
-          .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'))
+          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'))
           .get()
           .then((value) {
-       // print('this is from getDBsleep');
+        // print('this is from getDBsleep');
         dbSleepTime = value.data()['sleepTime'];
         return dbSleepTime;
       });
       return dbSleepTime;
     }
 
-    //print('dbSleepTime variable er data : ' + '$dbSleepTime');
+    //print('dbSleepTime variable data : ' + '$dbSleepTime');
 
     return dbSleepTime;
   }
 
   int getAddedSleep(int globalSecondTime, int dbSleepTime) {
-    /* int dbSleepTimeInt = int.parse(dbSleepTime); */
     int sum = dbSleepTime + globalSecondTime;
-    //add function here
+
     //print('from the added sleep function: ' + '$globalSecondTime');
     return sum;
   }
@@ -198,11 +198,11 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
           .collection('bracuFitnessData')
           .doc(userId)
           .collection(userId)
-          .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'));
+          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
       documentReference.set({
         'Steps': '$todaySteps',
         'calories': '$_calories',
-        'date': Jiffy(DateTime.now()).format('do MMMM yyyy'),
+        'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
         'distance': '$_km',
         'sleepTime': globalSecondTime > 0
             ? getAddedSleep(globalSecondTime, dbSleepTime)
@@ -214,11 +214,11 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
 
     getBurnedRun();
     return Scaffold(
-      backgroundColor: carbonBlack,
+      backgroundColor: bgColor,
       appBar: AppBar(
         title: Text(
-          "Daily Steps Tracker",
-          style: GoogleFonts.darkerGrotesque(fontSize: 40),
+          "Mental Health Support",
+          style: GoogleFonts.darkerGrotesque(fontSize: 32),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -278,7 +278,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 25),
+              margin: EdgeInsets.only(top: 50),
               child: Row(
                 children: <Widget>[
                   Container(
@@ -390,52 +390,32 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 25),
-              child: Row(
-                children: <Widget>[
-                  Spacer(),
-                  FlatButton(
-                    onPressed: () {
-                      print(globalRawTime);
-                      setState(() {
-                        sleepTime = globalRawTime;
-                      });
-                    },
-                    child: Text('Get Sleep Time'),
-                  ),
-                  Spacer(),
-                  InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => History(
-                                    userId: userId,
-                                  )),
-                        );
-                      },
-                      child: Container(
-                        width: 50,
-                        height: 30,
-                        color: Colors.blue,
-                        child: Text('History'),
-                      ))
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 25),
-              child: Row(
-                children: <Widget>[
-                  Spacer(),
-                  Text(
-                    '$sleepTime',
+              margin: EdgeInsets.only(top: 170),
+              child: RaisedButton(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                color: Colors.purpleAccent,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 35, top: 30),
+                  child: Text(
+                    'History',
                     style: TextStyle(
-                      color: Colors.white,
+                      fontSize: 20,
                     ),
                   ),
-                  Spacer(),
-                ],
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => History(
+                        userId: userId,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(

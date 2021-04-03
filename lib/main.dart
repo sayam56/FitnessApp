@@ -15,8 +15,6 @@ int globalSecondTime = 0;
 
 final StopWatchTimer _stopWatchTimer = StopWatchTimer(
   isLapHours: true,
-/*     onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'), */
 );
 
 final startSleepTimeCountMark = DateTime(
@@ -24,49 +22,6 @@ final startSleepTimeCountMark = DateTime(
 
 final stopSleepTimeCountMark = DateTime(
     DateTime.now().year, DateTime.now().month, DateTime.now().day, 07, 00);
-
-// [Android-only] This "Headless Task" is run when the Android app
-// is terminated with enableHeadless: true
-/* void backgroundFetchHeadlessTask(HeadlessTask task) async {
-  String taskId = task.taskId;
-  bool isTimeout = task.timeout;
-
-  if (isTimeout) {
-    // This task has exceeded its allowed running-time.
-    // You must stop what you're doing and immediately .finish(taskId)
-    print("[BackgroundFetch] Headless task timed-out: $taskId");
-    BackgroundFetch.finish(taskId);
-    return;
-  }
-  print('[BackgroundFetch] Headless event received.');
-  print("this is headless SAYAM");
-  // Do your work here...
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-    isLapHours: true,
-  );
-
-  _stopWatchTimer.rawTime.listen((value) {
-    globalRawTime = StopWatchTimer.getDisplayTime(value);
-  });
-
-  _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-
-  //this is from the background. should be all good
-  if ("${await isLockScreen()}" == 'false') {
-    print('phone open, is lock screen: ${await isLockScreen()}');
-    _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-  }
-
-  if ("${await isLockScreen()}" == 'true') {
-    print('phone locked, is lock screen: ${await isLockScreen()}');
-    if (_stopWatchTimer.isRunning == false) {
-      print("timer was not running, starting now");
-      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-    }
-  }
-
-  BackgroundFetch.finish(taskId);
-} */
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -107,11 +62,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('second Time : ' + '$value');
     });
 
-/*     sleepBox = Hive.box('sleep'); */
-
-/*     //save sleep here
-    savedSleep=getSavedSleepData(globalRawTime); */
-
     /// Can be set preset time. This case is "00:01.23".
     // _stopWatchTimer.setPresetTime(mSec: 1234);
     initPlatformState();
@@ -126,7 +76,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   bool getSleepCountStatus() {
     var now = new DateTime.now();
 
-    if (now.compareTo(startSleepTimeCountMark) > 0 || now.compareTo(stopSleepTimeCountMark) < 0) {
+    if (now.compareTo(startSleepTimeCountMark) > 0 ||
+        now.compareTo(stopSleepTimeCountMark) < 0) {
       return true;
     }
 
@@ -162,55 +113,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('app paused, is lock screen: ${await isLockScreen()}');
     }
   }
-
-/*   Future<String> getSavedSleepData(String globalRawStopwatchData) async {
-    String sleepKey = '99999999';
-    String savedSleepCount =
-        sleepBox.get(sleepKey, defaultValue: '00:00:00:00');
-
-    int todayDayNo = Jiffy(DateTime.now()).dayOfYear;
-
-    if (globalRawStopwatchData.compareTo(savedSleepCount) <= 0) {
-      //if the current sleeptime is less than the saved sleep this means no sleeptime has been recorded yet
-      savedSleepCount = '00:00:00:00';
-
-      // persisting this
-      sleepBox.put(sleepKey, savedSleepCount);
-    }
-
-    //this should be the resetting block :3 ---------------------------------------------------------------------------------------
-
-    /* // load the last day saved using a package of your choice here
-    int lastDaySavedKey = 888888;
-    int lastDaySaved = stepsBox.get(lastDaySavedKey, defaultValue: 0);
-
-    // When the day changes, reset the daily steps count
-    // and Update the last day saved as the day changes.
-    if (lastDaySaved < todayDayNo) {
-      lastDaySaved = todayDayNo;
-      savedStepsCount = value;
-
-      stepsBox
-        ..put(lastDaySavedKey, lastDaySaved)
-        ..put(savedStepsCountKey, savedStepsCount);
-    } */
-
-    setState(() {
-      String globalRawTimeWithoutExtra =
-          globalRawStopwatchData.replaceAll(':', '');
-      String savedSleepTimeWithoutExtra = savedSleepCount.replaceAll(':', '');
-      int tempSleepTime = int.parse(globalRawTimeWithoutExtra) -
-          int.parse(savedSleepTimeWithoutExtra);
-      todaySleepTime = tempSleepTime.toString();
-    });
-
-    print('----------------------------------------------------------------');
-    print(todaySleepTime);
-
-    sleepBox.put(todayDayNo, todaySleepTime);
-
-    return todaySleepTime;
-  } */
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
@@ -263,31 +165,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // setState to update our non-existent appearance.
     if (!mounted) return;
   }
-
-/*  void _onClickEnable(enabled) {
-    setState(() {
-      _enabled = enabled;
-    });
-    if (enabled) {
-      BackgroundFetch.start().then((int status) {
-        print('[BackgroundFetch] start success: $status');
-      }).catchError((e) {
-        print('[BackgroundFetch] start FAILURE: $e');
-      });
-    } else {
-      BackgroundFetch.stop().then((int status) {
-        print('[BackgroundFetch] stop success: $status');
-      });
-    }
-  }
-
-  void _onClickStatus() async {
-    int status = await BackgroundFetch.status;
-    print('[BackgroundFetch] status: $status');
-    setState(() {
-      _status = status;
-    });
-  } */
 
   @override
   Widget build(BuildContext context) {

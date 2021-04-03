@@ -53,7 +53,7 @@ dev_dependencies:
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/icons/icon.jpg"
+  image_path: "assets/icons/logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -78,6 +78,7 @@ flutter:
    - assets/images/tracker_color.svg
    - assets/images/tracker.svg
    - assets/images/otp.svg
+   - assets/images/sleep.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
