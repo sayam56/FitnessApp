@@ -211,6 +211,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           "Mental Health Support",
           style: GoogleFonts.darkerGrotesque(fontSize: 32),
