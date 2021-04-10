@@ -13,6 +13,13 @@ class History extends StatefulWidget {
 }
 
 class _HistoryState extends State<History> {
+  String _printDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, "0");
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +41,7 @@ class _HistoryState extends State<History> {
             children: snapshot.data.documents.map<Widget>((document) {
               String dateVal = document['date'];
               if (dateVal != todayDate) {
+                final now = Duration(seconds:document['sleepTime']);
                 print(dateVal);
                 print(todayDate);
                 return Container(
@@ -160,7 +168,7 @@ class _HistoryState extends State<History> {
                             SizedBox(
                               height: 5,
                             ),
-                            Text(document['sleepTime'].toString(),
+                            Text('${_printDuration(now)}',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 20)),
                           ],

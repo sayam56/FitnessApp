@@ -13,6 +13,8 @@ import 'package:pedometer/pedometer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+int localSecondTime = 0;
+
 class DailyStepsPage extends StatefulWidget {
   @override
   _DailyStepsPageState createState() => _DailyStepsPageState();
@@ -24,6 +26,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   StreamSubscription<int> _subscription; //we need sub to get the stream value
   Box<int> stepsBox =
       Hive.box('steps'); //hive is a kind of localstorage similar to sqlite
+
   int todaySteps; //will save todays steps
   String _km = "Unknown";
   String _calories = "Unknown";
@@ -38,9 +41,9 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   final Color bgColor = Color(0xFF161616);
 
   @override
-  void initState() {
+  initState() {
     super.initState();
-    //getDBSleep();
+    getDBSleep();
     setState(() {});
     startListening();
   }
@@ -153,32 +156,52 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     _subscription.cancel();
   }
 
-  Future<int> getDBSleep() async {
-    // print('fetching sleeptime from db');
+  bool getSleepCountStatus() {
+    var now = new DateTime.now();
 
-    if (dbSleepTime == 0) {
-      await FirebaseFirestore.instance
-          .collection('bracuFitnessData')
-          .doc(userId)
-          .collection(userId)
-          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'))
-          .get()
-          .then((value) {
-        // print('this is from getDBsleep');
-        dbSleepTime = value.data()['sleepTime'];
-        return dbSleepTime;
-      });
-      return dbSleepTime;
+    if (now.compareTo(startSleepTimeCountMark) > 0 ||
+        now.compareTo(stopSleepTimeCountMark) < 0) {
+      return true;
     }
+
+    return false;
+  }
+
+  getDBSleep() async {
+    // print('fetching sleeptime from db');
+    FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'))
+        .get()
+        .then((DocumentSnapshot documentSnapshot) async {
+      if (documentSnapshot.exists) {
+        print('document er data');
+
+        if (documentSnapshot.data()['sleepTime'] == null) {
+          print('sleepTime nai');
+          return dbSleepTime;
+        } else {
+          print('sleepTime ase');
+          dbSleepTime = await documentSnapshot.data()['sleepTime'];
+          return dbSleepTime;
+        }
+      } else {
+        print('document er data nai');
+        return 0;
+        //ekhane kokhono dhoke na karon o data banacche
+      }
+    });
 
     //print('dbSleepTime variable data : ' + '$dbSleepTime');
 
-    return dbSleepTime;
+    //return dbSleepTime;
   }
 
-  int getAddedSleep(int globalSecondTime, int dbSleepTime) {
-    int sum = dbSleepTime + globalSecondTime;
-
+  int getAddedSleep(int globalSecondTimeParam, int dbSleepTime) {
+    int sum = dbSleepTime + globalSecondTimeParam;
+    localSecondTime = globalSecondTime;
     //print('from the added sleep function: ' + '$globalSecondTime');
     return sum;
   }
@@ -191,20 +214,39 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
 
     if (date.compareTo(endTime) > 0) {
-      DocumentReference documentReference = FirebaseFirestore.instance
-          .collection('bracuFitnessData')
-          .doc(userId)
-          .collection(userId)
-          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
-      documentReference.set({
-        'Steps': '$todaySteps',
-        'calories': '$_calories',
-        'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
-        'distance': '$_km',
-        'sleepTime': globalSecondTime > 0
-            ? getAddedSleep(globalSecondTime, dbSleepTime)
-            : getDBSleep()
-      });
+      if (dbSleepTime > 0 || globalSecondTime > 0) {
+        DocumentReference documentReference = FirebaseFirestore.instance
+            .collection('bracuFitnessData')
+            .doc(userId)
+            .collection(userId)
+            .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
+        documentReference.set({
+          'Steps': '$todaySteps',
+          'calories': '$_calories',
+          'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
+          'distance': '$_km',
+          'sleepTime': localSecondTime == globalSecondTime
+              ? getDBSleep()
+              : getAddedSleep(globalSecondTime - localSecondTime, dbSleepTime)
+        });
+
+        getDBSleep();
+      } else {
+        //getDBSleep();
+        DocumentReference documentReference = FirebaseFirestore.instance
+            .collection('bracuFitnessData')
+            .doc(userId)
+            .collection(userId)
+            .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
+        documentReference.set({
+          'Steps': '$todaySteps',
+          'calories': '$_calories',
+          'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
+          'distance': '$_km'
+        });
+
+        //getDBSleep();
+      }
     }
 
     getBurnedRun();
@@ -386,7 +428,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 170),
+              margin: EdgeInsets.only(top: 100),
               child: RaisedButton(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
