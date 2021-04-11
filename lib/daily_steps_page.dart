@@ -177,18 +177,18 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         .get()
         .then((DocumentSnapshot documentSnapshot) async {
       if (documentSnapshot.exists) {
-        print('document er data');
+        //print('document er data');
 
         if (documentSnapshot.data()['sleepTime'] == null) {
-          print('sleepTime nai');
+          //print('sleepTime nai');
           return dbSleepTime;
         } else {
-          print('sleepTime ase');
+         // print('sleepTime ase');
           dbSleepTime = await documentSnapshot.data()['sleepTime'];
           return dbSleepTime;
         }
       } else {
-        print('document er data nai');
+        //print('document er data nai');
         return 0;
         //ekhane kokhono dhoke na karon o data banacche
       }

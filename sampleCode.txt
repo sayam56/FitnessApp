@@ -1,0 +1,13 @@
+    await FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'))
+        .get()
+        .then((value) {
+      // print('this is from getDBsleep');
+      dbSleepTime = value.data()['sleepTime'];
+      //sleepBox.put(sleepKey, dbSleepTime);
+
+      return dbSleepTime;
+    });
