@@ -24,9 +24,9 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   String userId = FirebaseAuth.instance.currentUser.uid;
   Pedometer _pedometer; //init pedometer
   StreamSubscription<int> _subscription; //we need sub to get the stream value
-  Box<int> stepsBox =
-      Hive.box('steps'); //hive is a kind of localstorage similar to sqlite
-
+  Box<int> stepsBox = Hive.box('steps');
+  //hive is a kind of localstorage similar to sqlite
+  Box<int> sleepBox = Hive.box('sleepbox');
   int todaySteps; //will save todays steps
   String _km = "Unknown";
   String _calories = "Unknown";
@@ -43,8 +43,11 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   @override
   initState() {
     super.initState();
-    getDBSleep();
+
     setState(() {});
+
+    getDBSleep();
+
     startListening();
   }
 
@@ -156,19 +159,13 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     _subscription.cancel();
   }
 
-  bool getSleepCountStatus() {
-    var now = new DateTime.now();
+  getDBSleep() {
+    int hiveSleepValue = sleepBox.get(hiveSleepKey, defaultValue: 0);
 
-    if (now.compareTo(startSleepTimeCountMark) > 0 ||
-        now.compareTo(stopSleepTimeCountMark) < 0) {
-      return true;
-    }
+    print('this is hive value');
+    print(hiveSleepValue);
 
-    return false;
-  }
-
-  getDBSleep() async {
-    // print('fetching sleeptime from db');
+    print('fetching sleeptime from db');
     FirebaseFirestore.instance
         .collection('bracuFitnessData')
         .doc(userId)
@@ -180,29 +177,31 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         //print('document er data');
 
         if (documentSnapshot.data()['sleepTime'] == null) {
-          //print('sleepTime nai');
+          //print('sleepTime not available');
           return dbSleepTime;
         } else {
-         // print('sleepTime ase');
+          // print('sleepTime available');
           dbSleepTime = await documentSnapshot.data()['sleepTime'];
+          sleepBox.put(hiveSleepKey, dbSleepTime);
           return dbSleepTime;
         }
       } else {
-        //print('document er data nai');
+
         return 0;
-        //ekhane kokhono dhoke na karon o data banacche
+
       }
     });
 
-    //print('dbSleepTime variable data : ' + '$dbSleepTime');
+  }
 
-    //return dbSleepTime;
+  getHiveValue() {
+    return sleepBox.get(hiveSleepKey, defaultValue: 0);
   }
 
   int getAddedSleep(int globalSecondTimeParam, int dbSleepTime) {
     int sum = dbSleepTime + globalSecondTimeParam;
+    sleepBox.put(hiveSleepKey, sum);
     localSecondTime = globalSecondTime;
-    //print('from the added sleep function: ' + '$globalSecondTime');
     return sum;
   }
 
@@ -214,39 +213,38 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
 
     if (date.compareTo(endTime) > 0) {
-      if (dbSleepTime > 0 || globalSecondTime > 0) {
-        DocumentReference documentReference = FirebaseFirestore.instance
-            .collection('bracuFitnessData')
-            .doc(userId)
-            .collection(userId)
-            .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
-        documentReference.set({
-          'Steps': '$todaySteps',
-          'calories': '$_calories',
-          'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
-          'distance': '$_km',
-          'sleepTime': localSecondTime == globalSecondTime
-              ? getDBSleep()
-              : getAddedSleep(globalSecondTime - localSecondTime, dbSleepTime)
-        });
+      // if (dbSleepTime > 0 || globalSecondTime > 0) {
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection('bracuFitnessData')
+          .doc(userId)
+          .collection(userId)
+          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
+      documentReference.set({
+        'Steps': '$todaySteps',
+        'calories': '$_calories',
+        'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
+        'distance': '$_km',
+        'sleepTime':
+            getAddedSleep(globalSecondTime - localSecondTime, getHiveValue())
+      });
 
-        getDBSleep();
-      } else {
-        //getDBSleep();
-        DocumentReference documentReference = FirebaseFirestore.instance
-            .collection('bracuFitnessData')
-            .doc(userId)
-            .collection(userId)
-            .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
-        documentReference.set({
-          'Steps': '$todaySteps',
-          'calories': '$_calories',
-          'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
-          'distance': '$_km'
-        });
+      getDBSleep();
+      // } else {
+      //   //getDBSleep();
+      //   DocumentReference documentReference = FirebaseFirestore.instance
+      //       .collection('bracuFitnessData')
+      //       .doc(userId)
+      //       .collection(userId)
+      //       .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
+      //   documentReference.set({
+      //     'Steps': '$todaySteps',
+      //     'calories': '$_calories',
+      //     'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
+      //     'distance': '$_km'
+      //   });
 
-        //getDBSleep();
-      }
+      //   //getDBSleep();
+      // }
     }
 
     getBurnedRun();

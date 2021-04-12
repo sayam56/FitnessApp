@@ -8,6 +8,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:daily_steps/daily_steps_page.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 String globalRawTime = '00:00:00:00';
@@ -21,13 +22,16 @@ final startSleepTimeCountMark = DateTime(
     DateTime.now().year, DateTime.now().month, DateTime.now().day, 22, 00);
 
 final stopSleepTimeCountMark = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day, 07, 00);
+    DateTime.now().year, DateTime.now().month, DateTime.now().day, 09, 00);
+
+String hiveSleepKey = Jiffy(DateTime.now()).format('dd-MM-yyyy');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox<int>('steps');
+  await Hive.openBox<int>('sleepbox');
   runApp(MyApp());
 }
 
