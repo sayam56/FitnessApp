@@ -91,7 +91,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       if ("${await isLockScreen()}" == 'true') {
         if (getSleepCountStatus() == true) {
-          Timer(Duration(seconds: 10), () {
+          Timer(Duration(minutes: 15), () {
             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
           });
         }
