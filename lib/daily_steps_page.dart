@@ -43,11 +43,8 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   @override
   initState() {
     super.initState();
-
     setState(() {});
-
     getDBSleep();
-
     startListening();
   }
 
@@ -160,11 +157,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   }
 
   getDBSleep() {
-    int hiveSleepValue = sleepBox.get(hiveSleepKey, defaultValue: 0);
-
-    print('this is hive value');
-    print(hiveSleepValue);
-
     print('fetching sleeptime from db');
     FirebaseFirestore.instance
         .collection('bracuFitnessData')
@@ -186,12 +178,9 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
           return dbSleepTime;
         }
       } else {
-
         return 0;
-
       }
     });
-
   }
 
   getHiveValue() {
@@ -213,7 +202,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
 
     if (date.compareTo(endTime) > 0) {
-      // if (dbSleepTime > 0 || globalSecondTime > 0) {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection('bracuFitnessData')
           .doc(userId)
@@ -229,22 +217,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
       });
 
       getDBSleep();
-      // } else {
-      //   //getDBSleep();
-      //   DocumentReference documentReference = FirebaseFirestore.instance
-      //       .collection('bracuFitnessData')
-      //       .doc(userId)
-      //       .collection(userId)
-      //       .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
-      //   documentReference.set({
-      //     'Steps': '$todaySteps',
-      //     'calories': '$_calories',
-      //     'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
-      //     'distance': '$_km'
-      //   });
-
-      //   //getDBSleep();
-      // }
     }
 
     getBurnedRun();
