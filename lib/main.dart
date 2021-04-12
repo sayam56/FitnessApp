@@ -13,6 +13,7 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 String globalRawTime = '00:00:00:00';
 int globalSecondTime = 0;
+int oldVal = 0;
 
 final StopWatchTimer _stopWatchTimer = StopWatchTimer(
   isLapHours: true,
@@ -22,7 +23,7 @@ final startSleepTimeCountMark = DateTime(
     DateTime.now().year, DateTime.now().month, DateTime.now().day, 22, 00);
 
 final stopSleepTimeCountMark = DateTime(
-    DateTime.now().year, DateTime.now().month, DateTime.now().day, 09, 00);
+    DateTime.now().year, DateTime.now().month, DateTime.now().day, 08, 00);
 
 String hiveSleepKey = Jiffy(DateTime.now()).format('dd-MM-yyyy');
 
@@ -45,6 +46,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget firstWidget;
   int _status = 0;
   List<DateTime> _events = [];
+  Box<int> sleepBox = Hive.box('sleepbox');
 
   @override
   void initState() {
@@ -57,11 +59,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     _stopWatchTimer.secondTime.listen((value) {
       globalSecondTime = value;
+      //updateHive(value);
+
       print('second Time : ' + '$value');
     });
 
     initPlatformState();
   }
+
+  // updateHive(int sleepVal) {
+  //   int previousHiveValue = sleepBox.get(hiveSleepKey, defaultValue: 0);
+  //   sleepBox.put(hiveSleepKey, sleepVal + previousHiveValue - oldVal);
+  //   oldVal = sleepVal;
+  // }
 
   @override
   void dispose() async {
