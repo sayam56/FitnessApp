@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:daily_steps/Pages/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -88,7 +91,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       if ("${await isLockScreen()}" == 'true') {
         if (getSleepCountStatus() == true) {
-          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          Timer(Duration(seconds: 10), () {
+            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          });
         }
       }
       if ("${await isLockScreen()}" == 'false') {
@@ -172,6 +177,12 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('NOT logged in');
       firstWidget = LoginPage();
     }
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Daily Steps',
