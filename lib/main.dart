@@ -1,78 +1,42 @@
+import 'dart:async';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:daily_steps/Pages/signup_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:daily_steps/daily_steps_page.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
 
-String globalRawTime = 'Not Sleepy Yet';
+String globalRawTime = '00:00:00:00';
+int globalSecondTime = 0;
 
 final StopWatchTimer _stopWatchTimer = StopWatchTimer(
   isLapHours: true,
-/*     onChangeRawSecond: (value) => print('onChangeRawSecond $value'),
-    onChangeRawMinute: (value) => print('onChangeRawMinute $value'), */
 );
 
-// [Android-only] This "Headless Task" is run when the Android app
-// is terminated with enableHeadless: true
-void backgroundFetchHeadlessTask(HeadlessTask task) async {
-  String taskId = task.taskId;
-  bool isTimeout = task.timeout;
+final startSleepTimeCountMark = DateTime(
+    DateTime.now().year, DateTime.now().month, DateTime.now().day, 22, 00);
 
-  if (isTimeout) {
-    // This task has exceeded its allowed running-time.
-    // You must stop what you're doing and immediately .finish(taskId)
-    print("[BackgroundFetch] Headless task timed-out: $taskId");
-    BackgroundFetch.finish(taskId);
-    return;
-  }
-  print('[BackgroundFetch] Headless event received.');
-  print("this is headless SAYAM");
-  // Do your work here...
-  final StopWatchTimer _stopWatchTimer = StopWatchTimer(
-    isLapHours: true,
-  );
+final stopSleepTimeCountMark = DateTime(
+    DateTime.now().year, DateTime.now().month, DateTime.now().day, 09, 00);
 
-  _stopWatchTimer.rawTime.listen((value) {
-    globalRawTime = StopWatchTimer.getDisplayTime(value);
-  });
-
-  _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
-
-  //this is from the background. should be all good
-  if ("${await isLockScreen()}" == 'false') {
-    print('phone open, is lock screen: ${await isLockScreen()}');
-    _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
-  }
-
-  if ("${await isLockScreen()}" == 'true') {
-    print('phone locked, is lock screen: ${await isLockScreen()}');
-    if (_stopWatchTimer.isRunning == false) {
-      print("timer was not running, starting now");
-      _stopWatchTimer.onExecute.add(StopWatchExecute.start);
-    }
-  }
-
-  BackgroundFetch.finish(taskId);
-}
+String hiveSleepKey = Jiffy(DateTime.now()).format('dd-MM-yyyy');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Hive.initFlutter();
   await Hive.openBox<int>('steps');
+  await Hive.openBox<int>('sleepbox');
   runApp(MyApp());
-
-  // Register to receive BackgroundFetch events after app is terminated.
-  // Requires {stopOnTerminate: false, enableHeadless: true}
-  BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
 }
-//firebase auth
 
 class MyApp extends StatefulWidget {
   @override
@@ -82,7 +46,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   User firebaseUser = FirebaseAuth.instance.currentUser;
   Widget firstWidget;
-  bool _enabled = true;
   int _status = 0;
   List<DateTime> _events = [];
 
@@ -95,10 +58,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       globalRawTime = StopWatchTimer.getDisplayTime(value);
     });
 
-    _stopWatchTimer.secondTime.listen((value) => print('secondTime $value'));
+    _stopWatchTimer.secondTime.listen((value) {
+      globalSecondTime = value;
+      print('second Time : ' + '$value');
+    });
 
-    /// Can be set preset time. This case is "00:01.23".
-    // _stopWatchTimer.setPresetTime(mSec: 1234);
     initPlatformState();
   }
 
@@ -108,6 +72,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     await _stopWatchTimer.dispose();
   }
 
+  bool getSleepCountStatus() {
+    var now = new DateTime.now();
+
+    if (now.compareTo(startSleepTimeCountMark) > 0 ||
+        now.compareTo(stopSleepTimeCountMark) < 0) {
+      return true;
+    }
+
+    return false;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
@@ -115,7 +90,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('app inactive, is lock screen: ${await isLockScreen()}');
 
       if ("${await isLockScreen()}" == 'true') {
-        _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        if (getSleepCountStatus() == true) {
+          Timer(Duration(minutes: 15), () {
+            _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+          });
+        }
       }
       if ("${await isLockScreen()}" == 'false') {
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
@@ -151,13 +130,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             requiredNetworkType: NetworkType.NONE), (String taskId) async {
       // <-- Event handler
       // This is the fetch-event callback.
-      print("[BackgroundFetch] Event received $taskId");
+      //print("[BackgroundFetch] Event received $taskId");
 
-      print("This is from the future InitPlatform shyt");
+      //print("This is from the future InitPlatform");
 
       //this is from the background. should be all good
       if ("${await isLockScreen()}" == 'true') {
-        _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        if (getSleepCountStatus() == true) {
+          _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+        }
       }
       if ("${await isLockScreen()}" == 'false') {
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
@@ -172,10 +153,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }, (String taskId) async {
       // <-- Task timeout handler.
       // This task has exceeded its allowed running-time.  You must stop what you're doing and immediately .finish(taskId)
-      print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
+      //print("[BackgroundFetch] TASK TIMEOUT taskId: $taskId");
       BackgroundFetch.finish(taskId);
     });
-    print('[BackgroundFetch] configure success: $status');
+    //print('[BackgroundFetch] configure success: $status');
     setState(() {
       _status = status;
     });
@@ -186,41 +167,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (!mounted) return;
   }
 
-  void _onClickEnable(enabled) {
-    setState(() {
-      _enabled = enabled;
-    });
-    if (enabled) {
-      BackgroundFetch.start().then((int status) {
-        print('[BackgroundFetch] start success: $status');
-      }).catchError((e) {
-        print('[BackgroundFetch] start FAILURE: $e');
-      });
-    } else {
-      BackgroundFetch.stop().then((int status) {
-        print('[BackgroundFetch] stop success: $status');
-      });
-    }
-  }
-
-  void _onClickStatus() async {
-    int status = await BackgroundFetch.status;
-    print('[BackgroundFetch] status: $status');
-    setState(() {
-      _status = status;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (firebaseUser != null) {
       print('logged in');
-      print(firebaseUser.uid);
+      //print(firebaseUser.uid);
       firstWidget = DailyStepsPage();
     } else {
       print('NOT logged in');
       firstWidget = LoginPage();
     }
+
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Daily Steps',

@@ -13,6 +13,7 @@ import 'package:pedometer/pedometer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
+int localSecondTime = 0;
 
 class DailyStepsPage extends StatefulWidget {
   @override
@@ -23,8 +24,9 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   String userId = FirebaseAuth.instance.currentUser.uid;
   Pedometer _pedometer; //init pedometer
   StreamSubscription<int> _subscription; //we need sub to get the stream value
-  Box<int> stepsBox =
-      Hive.box('steps'); //hive is a kind of localstorage similar to sqlite
+  Box<int> stepsBox = Hive.box('steps');
+  //hive is a kind of localstorage similar to sqlite
+  Box<int> sleepBox = Hive.box('sleepbox');
   int todaySteps; //will save todays steps
   String _km = "Unknown";
   String _calories = "Unknown";
@@ -32,14 +34,17 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   double burnedx;
   double _numerox; //stepcount
   double _convert;
-  String sleepTime = '$globalRawTime';
+  String sleepTime = globalRawTime;
+  int dbSleepTime = 0;
 
   final Color carbonBlack = Color(0xff1a1a1a);
+  final Color bgColor = Color(0xFF161616);
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     setState(() {});
+    getDBSleep();
     startListening();
   }
 
@@ -114,13 +119,11 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     int fac = pow(10, decimals);
     double d = long4;
     d = (d * fac).round() / fac;
-    //print("d: $d");
 
     getDistanceRun(_numerox);
 
     setState(() {
       _convert = d;
-      // print(_convert);
     });
     return todaySteps; // this is your daily steps value.
   }
@@ -131,7 +134,6 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     distance = num.parse(distance.toStringAsFixed(2)); //two decimal places
     var distancekmx = distance * 34;
     distancekmx = num.parse(distancekmx.toStringAsFixed(2));
-    //print(distance.runtimeType);
     setState(() {
       _km = "$distance";
       print('dist: ' + _km);
@@ -154,46 +156,77 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     _subscription.cancel();
   }
 
+  getDBSleep() {
+    print('fetching sleeptime from db');
+    FirebaseFirestore.instance
+        .collection('bracuFitnessData')
+        .doc(userId)
+        .collection(userId)
+        .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'))
+        .get()
+        .then((DocumentSnapshot documentSnapshot) async {
+      if (documentSnapshot.exists) {
+        //print('document er data');
+
+        if (documentSnapshot.data()['sleepTime'] == null) {
+          //print('sleepTime not available');
+          return dbSleepTime;
+        } else {
+          // print('sleepTime available');
+          dbSleepTime = await documentSnapshot.data()['sleepTime'];
+          sleepBox.put(hiveSleepKey, dbSleepTime);
+          return dbSleepTime;
+        }
+      } else {
+        return 0;
+      }
+    });
+  }
+
+  getHiveValue() {
+    return sleepBox.get(hiveSleepKey, defaultValue: 0);
+  }
+
+  int getAddedSleep(int globalSecondTimeParam, int dbSleepTime) {
+    int sum = dbSleepTime + globalSecondTimeParam;
+    sleepBox.put(hiveSleepKey, sum);
+    localSecondTime = globalSecondTime;
+    return sum;
+  }
+
   @override
   Widget build(BuildContext context) {
-    TimeOfDay yourTime = TimeOfDay(hour: 2, minute: 43);
-    TimeOfDay nowTime = TimeOfDay.now();
     DateTime date = DateTime.now();
 
-    double _doubleYourTime =
-        yourTime.hour.toDouble() + (yourTime.minute.toDouble() / 60);
-    double _doubleNowTime =
-        nowTime.hour.toDouble() + (nowTime.minute.toDouble() / 60);
     final endTime = DateTime(
         DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
+
     if (date.compareTo(endTime) > 0) {
       DocumentReference documentReference = FirebaseFirestore.instance
           .collection('bracuFitnessData')
           .doc(userId)
           .collection(userId)
-          .doc(Jiffy(DateTime.now()).format('do MMMM yyyy'));
+          .doc(Jiffy(DateTime.now()).format('dd-MM-yyyy'));
       documentReference.set({
         'Steps': '$todaySteps',
         'calories': '$_calories',
-        'date': Jiffy(DateTime.now()).format('do MMMM yyyy'),
+        'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
         'distance': '$_km',
-        'sleepTime': '$globalRawTime'
+        'sleepTime':
+            getAddedSleep(globalSecondTime - localSecondTime, getHiveValue())
       });
-      // Firestore.instance.collection('path').document("documentPath").collection('subCollectionPath').setData({});
-      //documentReference.collection('date').
+
+      getDBSleep();
     }
-    double _timeDiff = _doubleYourTime - _doubleNowTime;
 
-    print('Here your Happy $_timeDiff now Time $nowTime');
-
-    var time = Jiffy(date).Hms.split(":").first;
     getBurnedRun();
     return Scaffold(
-      backgroundColor: carbonBlack,
+      backgroundColor: bgColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
-          "Daily Steps Tracker",
-          style: GoogleFonts.darkerGrotesque(fontSize: 40),
+          "Mental Health Support",
+          style: GoogleFonts.darkerGrotesque(fontSize: 32),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -253,7 +286,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 25),
+              margin: EdgeInsets.only(top: 50),
               child: Row(
                 children: <Widget>[
                   Container(
@@ -365,52 +398,32 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
               ),
             ),
             Container(
-              margin: EdgeInsets.only(top: 25),
-              child: Row(
-                children: <Widget>[
-                  Spacer(),
-                  FlatButton(
-                    onPressed: () {
-                      print(globalRawTime);
-                      setState(() {
-                        sleepTime = globalRawTime;
-                      });
-                    },
-                    child: Text('Get Sleep Time'),
-                  ),
-                  Spacer(),
-                  InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => History(
-                                    userId: userId,
-                                  )),
-                        );
-                      },
-                      child: Container(
-                        width: 50,
-                        height: 30,
-                        color: Colors.blue,
-                        child: Text('History'),
-                      ))
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 25),
-              child: Row(
-                children: <Widget>[
-                  Spacer(),
-                  Text(
-                    '$sleepTime',
+              margin: EdgeInsets.only(top: 100),
+              child: RaisedButton(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                color: Colors.purpleAccent,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 35, top: 30),
+                  child: Text(
+                    'History',
                     style: TextStyle(
-                      color: Colors.white,
+                      fontSize: 20,
                     ),
                   ),
-                  Spacer(),
-                ],
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => History(
+                        userId: userId,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             SizedBox(
