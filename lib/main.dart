@@ -121,11 +121,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       print('app resumed, is lock screen: ${await isLockScreen()}');
 
       if ("${await isLockScreen()}" == 'true') {
-        wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        if (globalSecondTime > 0) {
+          wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        }
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       }
       if ("${await isLockScreen()}" == 'false') {
-        wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        if (globalSecondTime > 0) {
+          wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        }
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       }
     }
