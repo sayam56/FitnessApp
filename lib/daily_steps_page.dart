@@ -27,6 +27,10 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
   Box<int> stepsBox = Hive.box('steps');
   //hive is a kind of localstorage similar to sqlite
   Box<int> sleepBox = Hive.box('sleepbox');
+
+  Box<String> gotoSleepBox = Hive.box('gotoSleepBox');
+  Box<String> wakeupBox = Hive.box('wakeupBox');
+
   int todaySteps; //will save todays steps
   String _km = "Unknown";
   String _calories = "Unknown";
@@ -187,6 +191,14 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     return sleepBox.get(hiveSleepKey, defaultValue: 0);
   }
 
+  getEarliestSleepTime() {
+    return gotoSleepBox.get(hiveSleepKey, defaultValue: "0");
+  }
+
+  getLatestWakupTime(){
+    return wakeupBox.get(hiveSleepKey, defaultValue: "0");
+  }
+
   int getAddedSleep(int globalSecondTimeParam, int dbSleepTime) {
     int sum = dbSleepTime + globalSecondTimeParam;
     sleepBox.put(hiveSleepKey, sum);
@@ -199,7 +211,7 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
     DateTime date = DateTime.now();
 
     final endTime = DateTime(
-        DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 05);
+        DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 01);
 
     if (date.compareTo(endTime) > 0) {
       DocumentReference documentReference = FirebaseFirestore.instance
@@ -212,6 +224,8 @@ class _DailyStepsPageState extends State<DailyStepsPage> {
         'calories': '$_calories',
         'date': Jiffy(DateTime.now()).format('dd MMM yyyy'),
         'distance': '$_km',
+        'Earliest Sleeping Time': getEarliestSleepTime(),
+        'Last Waking Time': getLatestWakupTime(),
         'sleepTime':
             getAddedSleep(globalSecondTime - localSecondTime, getHiveValue())
       });
