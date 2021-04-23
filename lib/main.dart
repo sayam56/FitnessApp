@@ -108,6 +108,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             if (earliestSleepTime.compareTo('0') == 0) {
               gotoSleepBox.put(
                   hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+              earliestSleepTime = gotoSleepBox.get(hiveSleepKey);
             }
             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
           });
@@ -164,6 +165,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           if (earliestSleepTime.compareTo('0') == 0) {
             gotoSleepBox.put(
                 hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+            earliestSleepTime = gotoSleepBox.get(hiveSleepKey);
           }
           _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         }
