@@ -13,6 +13,7 @@ import 'package:is_lock_screen/is_lock_screen.dart';
 import 'package:daily_steps/daily_steps_page.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:intl/intl.dart';
 
 String globalRawTime = '00:00:00:00';
 int globalSecondTime = 0;
@@ -27,6 +28,9 @@ final startSleepTimeCountMark = DateTime(
 final stopSleepTimeCountMark = DateTime(
     DateTime.now().year, DateTime.now().month, DateTime.now().day, 09, 00);
 
+String earliestSleepTime = '0';
+String latestWakeUpTime = '0';
+
 String hiveSleepKey = Jiffy(DateTime.now()).format('dd-MM-yyyy');
 
 void main() async {
@@ -35,6 +39,8 @@ void main() async {
   await Hive.initFlutter();
   await Hive.openBox<int>('steps');
   await Hive.openBox<int>('sleepbox');
+  await Hive.openBox<String>('gotoSleepBox');
+  await Hive.openBox<String>('wakeupBox');
   runApp(MyApp());
 }
 
@@ -48,6 +54,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Widget firstWidget;
   int _status = 0;
   List<DateTime> _events = [];
+  Box<String> gotoSleepBox = Hive.box('gotoSleepBox');
+  Box<String> wakeupBox = Hive.box('wakeupBox');
 
   @override
   void initState() {
@@ -57,6 +65,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     _stopWatchTimer.rawTime.listen((value) {
       globalRawTime = StopWatchTimer.getDisplayTime(value);
     });
+    //gotoSleepBox.clear();
+    //wakeupBox.clear();
+    earliestSleepTime = gotoSleepBox.get(hiveSleepKey, defaultValue: "0");
+    latestWakeUpTime = wakeupBox.get(hiveSleepKey, defaultValue: "0");
 
     _stopWatchTimer.secondTime.listen((value) {
       globalSecondTime = value;
@@ -86,12 +98,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     super.didChangeAppLifecycleState(state);
+
     if (state == AppLifecycleState.inactive) {
       print('app inactive, is lock screen: ${await isLockScreen()}');
 
       if ("${await isLockScreen()}" == 'true') {
         if (getSleepCountStatus() == true) {
           Timer(Duration(minutes: 15), () {
+            if (earliestSleepTime.compareTo('0') == 0) {
+              gotoSleepBox.put(
+                  hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+              earliestSleepTime = gotoSleepBox.get(hiveSleepKey);
+            }
             _stopWatchTimer.onExecute.add(StopWatchExecute.start);
           });
         }
@@ -99,14 +117,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if ("${await isLockScreen()}" == 'false') {
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       }
-    }
+    } //inactive state
     if (state == AppLifecycleState.resumed) {
       print('app resumed, is lock screen: ${await isLockScreen()}');
 
       if ("${await isLockScreen()}" == 'true') {
+        if (globalSecondTime > 0) {
+          wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        }
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       }
       if ("${await isLockScreen()}" == 'false') {
+        if (globalSecondTime > 0) {
+          wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+        }
         _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
       }
     }
@@ -136,7 +160,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       //this is from the background. should be all good
       if ("${await isLockScreen()}" == 'true') {
+        // wakeupBox.put(hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
         if (getSleepCountStatus() == true) {
+          if (earliestSleepTime.compareTo('0') == 0) {
+            gotoSleepBox.put(
+                hiveSleepKey, DateFormat.Hms().format(DateTime.now()));
+            earliestSleepTime = gotoSleepBox.get(hiveSleepKey);
+          }
           _stopWatchTimer.onExecute.add(StopWatchExecute.start);
         }
       }
