@@ -17,7 +17,7 @@ samples, guidance on mobile development, and a full API reference.
 
 
 # daily_steps
-<p align="center"><img src="screenshot.png"/></p>
+<p align="center"><img src="fitness.gif"/></p>
 
  This is a Flutter app sample that demonstrates tracking daily steps in Flutter.
 
